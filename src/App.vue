@@ -1,19 +1,26 @@
-<template lang=pug>
+<template lang='pug'>
   div#app
+    vue-loading(:is-show='isLoading' toast-text='请稍候')
     router-view
 </template>
 
 <script>
   import logger from './logger'
+  import vueLoading from 'vue-componnet-loading'
 
   export default {
     name: 'app',
+    components: {
+      vueLoading
+    },
     data() {
       return {
-
+        isLoading: false
       }
     },
     async created () {
+      logger.bindXhrOpen(() => this.isLoading = true)
+      logger.bindXhrDone(() => this.isLoading = false)
       logger.bindAjax()
     },
     methods: {
@@ -22,7 +29,7 @@
   }
 </script>
 
-<style lang="stylus">
+<style lang='stylus'>
   *
     font-family 'PingFang SC', 'Microsoft YaHei UI', sans-serif
 
@@ -46,4 +53,7 @@
 
   input, input:focus
     -webkit-appearance none
+
+  .js-toast-container
+    position fixed !important
 </style>
