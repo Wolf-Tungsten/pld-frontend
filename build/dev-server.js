@@ -1,6 +1,4 @@
-require('./check-versions')()
-
-var config = require('../config')
+var config = require('./config')
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
 }
@@ -48,9 +46,6 @@ Object.keys(proxyTable).forEach(function (context) {
   }
   app.use(proxyMiddleware(options.filter || context, options))
 })
-
-// handle fallback for HTML5 history API
-app.use(require('connect-history-api-fallback')())
 
 // serve webpack bundle output
 app.use(devMiddleware)

@@ -1,4 +1,4 @@
-<template lang=pug>
+<template lang='pug'>
   div#index
 </template>
 
@@ -8,14 +8,11 @@
   export default {
     data () {
       return {
-
       }
     },
     async created () {
-
     },
     methods: {
-
     }
   }
 </script>
