@@ -8,7 +8,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: '首页',
+      name: 'PLD竞赛',
       component: Index
     }
   ]
