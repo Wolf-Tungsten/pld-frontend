@@ -1,14 +1,17 @@
 <template lang='pug'>
   div.app
     div.appbar
-      p.title 基于目标检测的公共空间管理系统
+      p.title 基于目标检测的楼宇智能化系统
     div.main
       div.slider
-        el-carousel(v-loading="loadingImage" trigger="click" height="400px" type="card" indicator-position="none")
+        el-carousel(v-loading="loadingImage" trigger="click" height="420px" type="card" indicator-position="none")
           el-carousel-item(v-for="item in displayLog" :key="item.key")
             .item
               el-card.card(:body-style="{ padding: '0px' }")
                 img.image(v-bind:src="item.url")
+                div.time
+                  span.label 拍摄时间
+                  span.value {{item.displayTime}}
       div.time-picker
         el-date-picker.picker(v-model="timeRange" 
                 type="datetimerange" 
@@ -19,9 +22,9 @@
                 )
         el-slider.range(v-model="timeFilter" @change="rangeTime" range :max="log.length-1" :format-tooltip="formatTooltip")
       div.controller
-        el-switch(v-model="auto" active-text="自动控制" inactive-text="手动控制")
-        el-switch(v-model="onOff" active-text="电源开" inactive-text="电源关")
-        el-switch(v-model="enable"   active-color="#13ce66"
+        el-switch(v-model="auto" @change="changeState" :disabled="!enable" active-text="自动控制" inactive-text="手动控制")
+        el-switch(v-model="onOff" @change="changeState" :disabled="auto || !enable" active-text="电源开" inactive-text="电源关")
+        el-switch(v-model="enable" @change="changeState"  active-color="#13ce66"
                   inactive-color="#ff4949" active-text="空间启用" inactive-text="空间停用")
 </template>
 
@@ -55,7 +58,12 @@
         this.loadingImage = true
         let res = start ? (await api.get(`/web?start=${start}&end=${end}`)) : (await api.get(`/web`))
         res = res.data.result
-        res.forEach( k => { k.key = res.indexOf(k)} )
+        res.forEach( k => { k.key = res.indexOf(k)
+          let timestamp = k.timestamp
+          let time = new Date()
+          time.setTime(timestamp)
+          k.displayTime = `${time.getFullYear()}-${time.getMonth()}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}`
+        })
         console.log(res)
         if(res.length>0){
             this.log = res
@@ -73,6 +81,12 @@
         let time = new Date()
         time.setTime(timestamp)
         return `${time.getFullYear()}-${time.getMonth()}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}`
+      },
+      changeState() {
+        if (!this.enable) {
+          this.onOff = false
+        }
+        api.post('/web', {onOff:this.onOff, auto:this.auto, enable:this.enable})
       }
     },
     async created () {
@@ -119,6 +133,14 @@
         .image 
           height 320px
           width auto
+        .time
+          padding 20px
+          .label
+            font-weight bold
+            color #555555
+          .value
+            margin-left 10px
+            color #409EFF
       .time-picker
         display flex
         padding-left 30px
